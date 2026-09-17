@@ -1,0 +1,5 @@
+"$schema" = "./node_modules/wrangler/config-schema.json"
+name = "oye-tia"
+main = "src/index.js"
+compatibility_date = "2026-09-17"
+workers_dev = false
