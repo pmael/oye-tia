@@ -73,7 +73,7 @@ export const episodes = [
     description:
       'Primera y última vez teniendo 22. Qué envidia le daría a nuestro yo de 30.',
     cover: episode5Cover,
-    audioSrc: '/audio/oyetia_podcast_tfg.mp3',
+    audioSrc: 'https://pub-6795ba3bcd1448d691b608e6a79b1510.r2.dev/oyetia_podcast_tfg.mp3',
     duration: '37 min',
   },
 ];
