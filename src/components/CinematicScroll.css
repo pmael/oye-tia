@@ -1,0 +1,435 @@
+.cinematic {
+  position: relative;
+  /* +380vh vs the previous 2115vh, all of it given to the metroWait phase (see the P
+     boundary comment in CinematicScroll.jsx) for the 3-loop idle sprite animation. */
+  height: 2495vh;
+  background: #5fa2ac;
+}
+
+.cinematic__sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.cinematic__layer {
+  position: absolute;
+  will-change: transform, opacity;
+  pointer-events: none;
+  user-select: none;
+}
+
+.cinematic__scene {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  user-select: none;
+}
+
+.cinematic__full {
+  position: absolute;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  object-fit: cover;
+  pointer-events: none;
+  user-select: none;
+}
+
+/*Les buildings qui passent au debut*/
+.cinematic__wide {
+  width: 160vw;
+  left: -20vw;
+  top: -15vw;
+  object-fit: cover;
+}
+
+.cinematic__buildings-photo {
+  /* crop from the sky if the box is wider-than-image, keep street level anchored */
+  object-position: center bottom;
+}
+
+/* Elena / bench (real artwork, precisely pinned to the bench in bench-scene-bg.png) */
+.cinematic__bench-bg {
+  position: absolute;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  object-fit: cover;
+  /* the bench sits in the left third of the source photo — anchor left/bottom so it
+     never gets cropped, since object-fit:cover only ever crops horizontally here */
+  object-position: left bottom;
+  pointer-events: none;
+  user-select: none;
+}
+
+.cinematic__elena-bust {
+  position: absolute;
+  /* All values below are in vh (not vw) on purpose: with object-position "left bottom"
+    above, the background image scales 1:1 with viewport height with zero vertical
+    crop, so a source pixel's fraction of the 850px-tall background maps exactly to
+    the same fraction of 100vh on any screen width. Using vh for the horizontal
+    placement too keeps Elena locked to the bench regardless of viewport aspect ratio. */
+  top: 42vh;
+  left: -10vh;
+  width: 100vh;
+  height: auto;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Walking street */
+/* Plain fill behind the landmark image and pavement's own transparent margins — see the
+   comment on cinematic__street-sky usage in CinematicScroll.jsx. */
+.cinematic__street-sky {
+  position: absolute;
+  inset: 0;
+  background: #7fd1e0;
+}
+
+/* parallax-background.png (the real Cibeles/Puerta de Alcalá art) is transparent around
+   the buildings, not a full-bleed photo, so it's sized by height alone (3/4 of the
+   viewport, per spec) with width left to its own aspect ratio (668:373) rather than
+   object-fit:cover on a fixed box. Centered via a fixed vh margin — not left:50% plus a
+   CSS transform, which would fight with framer's own `x` (landmarkX) on the same
+   element, since both ultimately write to the `transform` property. */
+.cinematic__landmark {
+  position: absolute;
+  top: 30vh;
+  left: 50%;
+  margin-left: -67.16vh;
+  height: 75vh;
+  width: auto;
+}
+
+/* pavement.png (set as a background-image inline in CinematicScroll.jsx, not an <img> src)
+  is a repeating strip (hedge + lampposts) with a transparent margin above its own
+  content — background-size scales it to the box height while keeping its own aspect
+  ratio, and repeat-x tiles it seamlessly across the full width regardless of viewport
+  size or the horizontal parallax drift applied via the x transform. Its own content
+  (hedge top) starts ~20% down from this box's own top edge, at bottom:24vh — matching
+  cinematic__elena-walking/car-passing's bottom below, which land feet/wheels there. */
+.cinematic__pavement {
+  position: absolute;
+  bottom: 0;
+  left: -20vw;
+  width: 140vw;
+  height: 60vh;
+  background-repeat: repeat-x;
+  background-position: bottom left;
+  background-size: auto 100%;
+  pointer-events: none;
+  user-select: none;
+}
+
+.cinematic__elena-walking {
+  position: absolute;
+  /* lands her feet right where pavement.png's hedge meets the brick (the ground plane in
+    that art) — measured the same way as the buildings: found that line at source y≈290
+    of pavement.png's 373px canvas, converted via its own box height (30vh). */
+  bottom: 10vh;
+  left: 34vw;
+  height: 34vh;
+  width: auto;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+  /* pivot around her center of mass rather than the top-left corner, so the sway
+     reads as floating in place instead of rotating around a random point */
+  transform-origin: 50% 60%;
+}
+
+.cinematic__car-passing {
+  position: absolute;
+  bottom: -20vh;
+  /* off-screen left at rest; height/scale matches the reference mock (wheels ~grounded
+     at the viewport bottom, close foreground pass) */
+  left: -60vw;
+  height: 100vh;
+  width: auto;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+}
+
+.cinematic__bus-passing {
+  position: absolute;
+  bottom: -115vh;
+  /* off-screen right at rest; smaller/further back than the car */
+  left: 50vw;
+  height: 324vh;
+  width: auto;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Storefront street: full-bleed backdrop (night street, lampposts, flanking buildings)
+  with a gap left open for the door/window building below. Anchored left (like
+  bench-scene-bg) so the vh-based math above stays exact regardless of viewport width. */
+.cinematic__storefront-bg {
+  position: absolute;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  object-fit: cover;
+  object-position: left;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* The restaurant building, sized/positioned to match the reference composite (bar
+  scene-2.png): measured by diffing that mock against storefront-street-bg.png to find
+  where it actually sits (x 611-1534 / y 0-1020 of the 2084x1166 background), then
+  converted to vh via the same left-anchored scale-lock, with width re-derived from the
+  source PNG's own aspect ratio (934x1171) since the diffed footprint included some
+  drop-shadow bleed past the image's real edges. Extends above the viewport top on
+  purpose — matches the reference, where the upper floor/balcony is cropped by the frame. */
+.cinematic__storefront {
+  position: absolute;
+  left: 55.15vh;
+  top: 0;
+  /* very slightly oversized vs. the pure aspect-ratio match: the source PNG has a few
+  px of transparent anti-aliasing margin on its right edge that otherwise shows as a
+  thin sliver of the old background peeking through */
+  width: 78vh;
+  height: 87.5vh;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Bar / Lucia: bg anchored left (not the shared class's default center) so the
+   left-anchored vh scale-lock below stays exact regardless of viewport width. */
+.cinematic__bar-bg {
+  object-position: left;
+}
+
+/* Lucia's bust, positioned/sized to match the reference (inside bar.png): measured by
+   isolating her hair silhouette in that composite (x 981-1602 / y 183-992 of the
+   2134x1194 reference) and comparing it to the same silhouette in the source PNG to
+   recover the scale, then converted to vh via the usual left-anchored scale-lock. This
+   box is the full (mostly transparent) source canvas — much wider than her visible
+   hair/face — positioned so that content lines up; it's expected to extend off the
+   right edge on typical viewports since only the transparent margin does. */
+.cinematic__lucia-bust {
+  position: absolute;
+  left: 26.5vh;
+  top: 7.7vh;
+  width: 164.2vh;
+  height: 92.3vh;
+  object-fit: contain;
+  object-position: left top;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Cheers: beer glasses converge toward Lucia's face/chest height, then freeze there */
+.cinematic__beer {
+  position: absolute;
+  /* negative bottom on purpose: much bigger than the viewport now, with the extra size
+     pushed down so the hand/arm runs off the bottom edge (matching the reference) while
+     the glass rim itself stays around the same on-screen height as before. */
+  bottom: -23vh;
+  height: 120vh;
+  width: auto;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+}
+
+.cinematic__beer--left {
+  left: 33vw;
+  transform-origin: 65% 35%;
+}
+
+.cinematic__beer--right {
+  right: 37vw;
+  transform-origin: 35% 35%;
+}
+
+/* The rising/receding beer wall: taller than the viewport on purpose (see beerBgY in
+   CinematicScroll.jsx for why) and always full width. */
+.cinematic__beer-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 140vh;
+  object-fit: cover;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Metro: Lucia's idle-animation sprite frames all share one position/size and stack via
+   opacity (see luciaMetro*Opacity in CinematicScroll.jsx) — only one is ever visible. */
+.cinematic__lucia-metro {
+  position: absolute;
+  bottom: 14vh;
+  left: 41vw;
+  height: 36vh;
+  width: auto;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Position/size match the train's on-screen placement the moment it's first clearly
+   visible (trainArrivalScale=1, no growth applied yet): width from the source image's
+   own headlight spacing, left/top from tracking the headlights' on-screen position at
+   that same reference moment. Because TRAIN_ORIGIN in CinematicScroll.jsx is defined
+   *relative to this box*, adjusting top/left here shifts the whole arrival growth
+   uniformly at every scale — no need to touch the origin too, unless this box's own
+   position changes. The later "whole metro scene zooms in" push-in is a separate scale
+   on the ancestor .cinematic__scene wrapper (see metroZoomScale in the JS), so it doesn't
+   need its own origin here. */
+.cinematic__train-wrap {
+  position: absolute;
+  top: 45.5vh;
+  left: 2vw;
+  width: 42.2vw;
+  height: auto;
+  pointer-events: none;
+  user-select: none;
+}
+
+.cinematic__train {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
+/* Building convergence: plain night-sky/sidewalk backdrop, anchored left like the other
+   full-bleed backgrounds so the vh math below stays exact regardless of viewport width. */
+.cinematic__final-bg {
+  position: absolute;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  object-fit: cover;
+  object-position: left;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* The 3 buildings: each source PNG is a full multi-floor rowhouse drawn far taller than
+   what's ever in frame (only the ground floor + the floor above are visible, cropped by
+   the viewport top like the storefront building), with a transparent margin around the
+   art on top of that. left/width/height/bottom below place that *whole* source canvas so
+   the visible facade lands where FinalStep1.png shows it — measured the same way as
+   lucia-bust: diff the visible facade's footprint in the composite against the same
+   facade in the source PNG to recover the scale, then convert via the usual left-anchored
+   vh scale-lock. Left/right reuse the same side-building.png unflipped (matches the ref). */
+.cinematic__building {
+  position: absolute;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+}
+
+.cinematic__building--left {
+  left: -30.2vh;
+  bottom: 10.2vh;
+  width: 119.4vh;
+  height: 278.8vh;
+}
+
+.cinematic__building--right {
+  left: 96.7vh;
+  bottom: 10.2vh;
+  width: 119.4vh;
+  height: 278.8vh;
+}
+
+.cinematic__building--center {
+  left: 35.1vh;
+  bottom: 9.3vh;
+  width: 122.9vh;
+  height: 269.8vh;
+}
+
+/* The two walkers: full-body sprites, same "extends past its own visible art" canvas as
+   the buildings (measured the same way) and sized to ~match Lucia's metro-platform height
+   per the reference. left/bottom below land the visible figure at the converged mark in
+   FinalStep2.png; the x transform in CinematicScroll.jsx carries each one in from off
+   -screen on their own side before settling here. */
+.cinematic__walker {
+  position: absolute;
+  bottom: 7.6vh;
+  height: 36.9vh;
+  width: auto;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+  transform-origin: 50% 85%;
+}
+
+.cinematic__walker--lucia {
+  left: 34.7vh;
+}
+
+.cinematic__walker--elena {
+  left: 77.5vh;
+  height: 36.8vh;
+}
+
+.cinematic__vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0) 45%, rgba(10, 6, 20, 0.55) 100%);
+}
+
+/* Episode cards, merged directly into the end-menu scene (see episodesOpacity in
+   CinematicScroll.jsx) instead of a separate section further down the page — pointer
+   events are toggled by the same motion value as opacity, and inherited by the cards
+   below since neither sets its own pointer-events, so they're only clickable once
+   actually visible. */
+.cinematic__episodes {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  padding: 5rem 1.5rem 6rem;
+}
+
+.cinematic__episodes-content {
+  position: relative;
+  max-width: 1100px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.cinematic__episodes-heading {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 2.4rem;
+  color: #fff5e8;
+  margin: 0 0 2.5rem;
+}
+
+.cinematic__episodes-cards {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 1.4rem;
+}
+
+@media (max-width: 900px) {
+  .cinematic__episodes-cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .cinematic__episodes-cards {
+    grid-template-columns: 1fr;
+    max-width: 320px;
+    margin: 0 auto;
+  }
+}
+
+@media (max-width: 720px) {
+  .cinematic {
+    height: 1912vh;
+  }
+}

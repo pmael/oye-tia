@@ -1,0 +1,19 @@
+.speech-bubble {
+  position: absolute;
+  top: 22%;
+  width: min(30vw, 340px);
+  height: auto;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+}
+
+.speech-bubble--right {
+  left: 55%;
+  width: 40vw;
+}
+
+.speech-bubble--left {
+  right: 55%;
+  width: 40vw;
+}
